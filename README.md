@@ -1,3 +1,5 @@
+<img src="assets/icon.svg" alt="Doska logo" width="84" height="75">
+
 # Doska for Symfony
 
 Dev-only Symfony toolbar. Point at an element, write a note, and copy a prompt that names the controller, the Twig file and line, and the Symfony UX component. A connected agent can also read and resolve notes through the stateless MCP endpoint.
