@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doska\EventListener;
 
 use Doska\Http\ControllerLocation;
+use Doska\Shared\Html;
 use Doska\Twig\Comments;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -128,7 +129,8 @@ final class InjectToolbarListener
         $open = Comments::open('controller', $location['file'], $location['line'], $location['scope'], $extra);
         $close = Comments::close('controller');
 
-        if ($mainRequest && false !== $body = $this->findBody($content)) {
+        $body = $mainRequest ? Html::bodyOffsets($content) : null;
+        if (null !== $body) {
             [$openAt, $closeAt] = $body;
             $content = substr_replace($content, "\n".$close."\n", $closeAt, 0);
             $content = substr_replace($content, "\n".$open."\n", $openAt, 0);
@@ -148,7 +150,7 @@ final class InjectToolbarListener
             return $content;
         }
 
-        $body = $this->findBody($content);
+        $body = Html::bodyOffsets($content);
         if (null === $body) {
             return null;
         }
@@ -186,22 +188,5 @@ final class InjectToolbarListener
         }
 
         return substr_replace($content, $element, $closeAt, 0);
-    }
-
-    /**
-     * @return array{int, int}|null byte offsets of the end of the opening body tag and the start of the closing body tag
-     */
-    private function findBody(string $html): ?array
-    {
-        if (!preg_match('/<body\b[^>]*>/i', $html, $open, PREG_OFFSET_CAPTURE)) {
-            return null;
-        }
-        $openAt = $open[0][1] + strlen($open[0][0]);
-        $closeAt = strripos($html, '</body>');
-        if (false === $closeAt || $closeAt < $openAt) {
-            return null;
-        }
-
-        return [$openAt, $closeAt];
     }
 }
